@@ -153,3 +153,18 @@
 .trend-values {display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.4rem;margin-top:.6rem;}
 .trend-values > div {display:flex;justify-content:space-between;gap:.4rem;padding:.4rem;background:#faf8fc;border-radius:4px;}
 @media(max-width:520px) {.trend-controls {grid-template-columns:1fr;} }
+
+.scorecard-cards {margin:1rem 0;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));}
+.scorecard-secondary {display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1rem;margin-top:1.25rem;}
+.scorecard-secondary .panel {margin-bottom:0;}
+.scorecard-priority {border-top:1px solid #efeaf2;padding:.7rem 0;font-size:.85rem;}
+.scorecard-priority p {margin:.3rem 0;}
+.scorecard-seat {display:flex;align-items:center;justify-content:space-between;gap:1rem;border-top:1px solid #efeaf2;padding:.6rem 0;font-size:.8rem;}
+.scorecard-status {display:inline-block;max-width:100%;border-radius:6px;padding:.2rem .35rem;background:#f0edf3;font-size:.75rem;overflow-wrap:anywhere;}
+.scorecard-status.status-Green {background:#e6efdf;}
+.scorecard-status.status-Red {background:#f7dcdc;}
+.scorecard-status.status-Yellow {background:#fff2cb;}
+.scorecard-note {white-space:pre-wrap;overflow-wrap:anywhere;}
+.scorecard-table th:first-child {width:23%;}
+@media(max-width:1120px){.scorecard-table th:first-child{width:28%;}}
+@media(max-width:760px){.scorecard-secondary{grid-template-columns:1fr;}}
