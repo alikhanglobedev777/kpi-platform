@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "admin:seed": "node scripts/seed-admin.mjs"
+    "admin:seed": "node scripts/seed-admin.mjs",
+    "admin:reset": "node scripts/reset-password.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

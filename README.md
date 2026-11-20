@@ -1,45 +1,16 @@
 # Dawson & Dawson KPI Portal
+Next.js 15 / React 19. Google Sheets remains the KPI data store and formula engine. Existing Neon/Drizzle is used for accounts, permissions, sessions, rate limits and operation metadata only. No Google OAuth login. This implementation supersedes conflicting sections of the original specification; see `docs/PATCH_IMPLEMENTATION.md`.
 
-Next.js 15 / React 19 / TypeScript portal backed by the existing Dawson KPI workbook. Implementation follows `DAWSON_KPI_PORTAL_BUILD_SPEC.md` supplied by the project owner.
+## Local setup (development copy only)
+Use Node 22.15+ and pnpm 10. Run `pnpm install`, copy `.env.example` to `.env.local`, and configure a restricted development database and a service account with Editor access to a development copy of the workbook. Enable Sheets API in the service account's project. Never commit credentials or real client information. Set AUTH_URL=http://localhost:3000 and confirm INITIAL_ADMIN_EMAILS. Generate and apply the initial development database migration with `pnpm db:generate` then `pnpm db:migrate`. Commit the generated migrations and lockfile after review. These commands are not to be run blindly against a populated database.
 
-## Development
+Seed the first administrator once using environment variables SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD (12+ characters) and `pnpm admin:seed`. Remove the seed password from the environment immediately. `pnpm dev` serves `/login`, `/request-access`, `/admin`, and `/dashboard`. Approve requests in the Admin Portal and deliver the generated temporary password through an independently verified private channel. Users must change it on first approved login. A trusted operator can use `pnpm admin:reset verified@example.com` after independently verifying identity; output is a secret and must not be logged. No public email-based password reset or email notifications are implemented.
 
-Use Node.js 22.15+ (Node 24 recommended) and pnpm 10.
+## Checks
+`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`. Apply patches in sequence; do not deploy if any checks fail. A live smoke test against a sanitized copy must verify create/update/clear for each weekly tab, list CRUD, formula preservation, stale edits, role checks, approvals and session revocation. No live Sheet or database check is automatically performed by installing these patches.
 
-```sh
-pnpm install
-pnpm dev
-```
+## Deployment
+Railway: one instance, Node 22+, variables from `.env.example`, `AUTH_URL` equal to the HTTPS application origin, `/api/health` (liveness only), `pnpm start --hostname 0.0.0.0`. Do not use multi-instance/serverless deployments until distributed coordination is implemented. Set up migrations and initial admin before allowing access. No live production access unless `APP_ENV=production` and `ALLOW_PRODUCTION_SHEET=true` are set. Production requires restricted spreadsheet sharing, approved privacy/security controls and verification of no PHI in stored/displayed notes. The build pipeline does not migrate databases or enable the production workbook automatically.
 
-Open http://localhost:3000. The initial page is explicitly a setup preview; it contains no fabricated KPI results or enabled data mutations.
-
-Copy `.env.example` to `.env.local` when configuring integrations. Keep credentials out of source control. No credentials are required to build the initial shell; integration entry points validate their required configuration before connecting. Use a **development copy** of the workbook shared with the service account. The known production workbook ID is rejected outside a Vercel production deployment, including local builds where Next sets `NODE_ENV=production`.
-
-```sh
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm db:generate
-# Only after configuring a development Neon database:
-pnpm db:migrate
-```
-
-Playwright is configured for Chromium. Browser tests are added alongside functional flows in subsequent phases; no e2e coverage is claimed for the initial setup.
-
-## Implementation status
-
-- Phase 0: scaffold, styling, reusable Radix button, strict TypeScript, environment checks, Drizzle schema, migration configuration, Vitest and Playwright setup.
-- Phase 1 next: typed Sheets maps, protected write ranges, date handling, conflict detection, and development-copy smoke test.
-- Phases 2–7: authentication/approval, department CRUD, lists, scorecard/reference pages, admin operations, hardening and deployment.
-
-Do not advance to the next phase until the current phase's checks pass. A generated database schema is not an applied migration. Authentication, authorization, auditing, and Sheets operations are not connected yet; this scaffold must not be used as a production portal.
-
-## Integration inputs needed
-
-1. Development workbook ID and service-account credentials (or confirmation that Apps Script is needed).
-2. Development Neon connection string.
-3. Google OAuth, Auth.js, and Resend configuration for Phase 2.
-4. Confirmed initial admin email addresses; no suggested identity is automatically trusted.
-
-The source workbook's known issues and the client's unresolved choices remain requirements for later phases. In particular, preserve manual clinical scorecard values, show missing-data counts, use Saturday reporting weeks, and keep all notes out of telemetry. Production deployment and workbook changes remain later work.
+## Known boundaries
+Current 30-week range and original formula/rule discrepancies are preserved. Scorecard is current shared reporting week only; never writes K12 or calculated cells. Historical department tables and trend plots are available. Separate historical scorecard calculations, extension of weeks, editing dynamic priority statuses, email notification, end-to-end tests, distributed write locks, and compliance readiness are follow-up work. The audit log stores operation metadata, not full old/new cell contents. Concurrent direct spreadsheet edits can still race between the read and write; use the portal as the sole writer. List row identity uses bounded row plus revision hash. A pending operation may have succeeded in Sheets; reconcile before retrying. Review existing clinical notes and sharing restrictions before anyone sees real data.

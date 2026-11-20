@@ -8,10 +8,10 @@ import {HttpError} from "@/lib/http";
 import type {Department} from "@/lib/sheets/schema";
 const COOKIE="dawson_session";
 const digest=(s:string)=>createHash("sha256").update(s).digest("hex");
-export async function currentUser(){const token=(await cookies()).get(COOKIE)?.value;if(!token)return null;const db=getDb();const [r]=await db.select({id:users.id,email:users.email,name:users.name,role:users.role,status:users.status}).from(sessions).innerJoin(users,eq(sessions.userId,users.id)).where(and(eq(sessions.sessionToken,digest(token)),gt(sessions.expires,new Date()))).limit(1);return r??null;}
+export async function currentUser(){const token=(await cookies()).get(COOKIE)?.value;if(!token)return null;const db=getDb();const [r]=await db.select({id:users.id,email:users.email,name:users.name,role:users.role,status:users.status,mustChangePassword:users.mustChangePassword}).from(sessions).innerJoin(users,eq(sessions.userId,users.id)).where(and(eq(sessions.sessionToken,digest(token)),gt(sessions.expires,new Date()))).limit(1);return r??null;}
 export type User=NonNullable<Awaited<ReturnType<typeof currentUser>>>;
-export async function requireUser(){const u=await currentUser();if(!u)throw new HttpError(401,"Sign in required");if(u.status!=="approved"||!u.role)throw new HttpError(403,"Account not approved");return u;}
-export function isAdmin(u:User){return u.role==="admin"||u.role==="super_admin";}
+export async function requireUser(){const u=await currentUser();if(!u)throw new HttpError(401,"Sign in required");if(u.status!=="approved"||!u.role)throw new HttpError(403,"Account not approved");if(u.mustChangePassword)throw new HttpError(403,"Password change required");return u;}
+export function isAdmin(u:Pick<User,"role">){return u.role==="admin"||u.role==="super_admin";}
 export async function requireAdmin(){const u=await requireUser();if(!isAdmin(u))throw new HttpError(403,"Administrator access required");return u;}
 export type Module=Department|"scorecard"|"targets"|"help";
 export type Action="create"|"read"|"update"|"delete";

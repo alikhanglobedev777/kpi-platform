@@ -4,7 +4,7 @@ export const userRole = pgEnum("user_role", ["super_admin", "admin", "seat_owner
 export const sheetTab = pgEnum("sheet_tab", ["hr", "business_development", "scheduling", "financial", "clinical", "founder_transition", "weekly_kpi_report", "compliance", "quarterly_goals", "scorecard", "targets", "help"]);
 export const auditAction = pgEnum("audit_action", ["create", "update", "clear", "approve_user", "reject_user", "deactivate_user", "change_role", "change_tabs", "edit_goal", "extend_weeks"]);
 export const users = pgTable("users", {
-  id: uuid().primaryKey().defaultRandom(), email: text().notNull().unique(), name: text(), image: text(), passwordHash: text("password_hash"), requestedDepartment: text("requested_department"),
+  id: uuid().primaryKey().defaultRandom(), email: text().notNull().unique(), name: text(), image: text(), passwordHash: text("password_hash"), mustChangePassword: boolean("must_change_password").notNull().default(false), requestedDepartment: text("requested_department"),
   emailVerified: timestamp("email_verified", { withTimezone: true }),
   status: userStatus().notNull().default("pending"), role: userRole(),
   approvedBy: uuid("approved_by").references((): AnyPgColumn => users.id),
