@@ -122,3 +122,20 @@
 .record-detail-grid dd {white-space:pre-wrap;overflow-wrap:anywhere;margin:.25rem 0 0;}
 @media(max-width:1120px) {.record-table .optional-column {display:none;} .record-table th:first-child{width:29%;}}
 @media(max-width:760px) {.record-table,.record-table tbody{display:block;} .record-table thead{display:none;} .record-table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem .7rem;padding:.8rem;border-top:1px solid #efeaf2;} .record-table td{display:block;min-width:0;padding:.15rem;border:0;} .record-table td[data-label]::before{content:attr(data-label);display:block;font-size:.69rem;color:#6b6176;margin-bottom:.2rem;} .record-table .record-actions-cell{grid-column:1/-1;} .record-table .optional-column{display:none;} .record-filters{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+/* Native dialogs retain focus, keyboard access and a stationary portal shell. */
+.portal-dialog {position:fixed;inset:0;margin:auto;width:min(480px,calc(100vw - 2rem));max-height:calc(100dvh - 2rem);padding:0;border:1px solid #e5dfea;border-radius:16px;background:#fff;color:#2f2838;overflow:auto;scrollbar-width:none;box-shadow:0 18px 60px #33283e33;}
+.portal-dialog::-webkit-scrollbar {display:none;}
+.portal-dialog-wide {width:min(780px,calc(100vw - 2rem));}
+.portal-dialog::backdrop {background:#241b31a6;}
+.portal-dialog-heading {display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:1.15rem 1.35rem;border-bottom:1px solid #e5dfea;position:sticky;top:0;background:white;z-index:2;}
+.portal-dialog-heading h2 {margin:0;font-size:1.2rem;}
+.portal-dialog-heading p {margin:.25rem 0 0;font-size:.83rem;}
+.portal-dialog-body {padding:1.25rem 1.35rem;}
+.portal-dialog-footer {display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap;padding:1rem 1.35rem;border-top:1px solid #e5dfea;background:white;position:sticky;bottom:0;z-index:2;}
+.portal-form-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;}
+.portal-form-grid .full-field {grid-column:1/-1;}
+.field-label {font-size:.73rem;font-weight:400;color:#6b6176;}
+.form-hint {font-size:.82rem;margin:0 0 1rem;}
+.destructive {background:#a22433;border-color:#a22433;}
+@media(max-width:520px) {.portal-form-grid{grid-template-columns:1fr;} .portal-dialog-heading,.portal-dialog-body,.portal-dialog-footer{padding:1rem;} }
