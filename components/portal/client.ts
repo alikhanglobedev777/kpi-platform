@@ -1,0 +1,1 @@
+export async function api<T>(url:string,method="GET",body?:unknown):Promise<T>{const r=await fetch(url,{method,cache:"no-store",headers:body===undefined?undefined:{"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});const data=await r.json();if(!r.ok)throw new Error(data.error??"Request failed");return data as T;}
