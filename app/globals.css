@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@theme inline {
+  --color-primary: #5e4b73;
+  --color-muted: #f3f1f5;
+  --color-border: #e5dfea;
+  --color-foreground: #2f2838;
+}
+body { margin: 0; background: #faf9fc; color: #2f2838; font-family: Arial, Helvetica, sans-serif; font-size: 16px; }
+* { box-sizing: border-box; }
+::selection { background: #ece6f2; }
