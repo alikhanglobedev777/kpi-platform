@@ -1,0 +1,5 @@
+import {desc,eq} from "drizzle-orm";
+import {getDb} from "@/db";
+import {operations,users} from "@/db/schema";
+import {requireAdmin} from "@/lib/auth/session";
+export default async function Page(){await requireAdmin();const rows=await getDb().select({id:operations.id,email:users.email,action:operations.action,tab:operations.tab,record:operations.record,fields:operations.fields,status:operations.status,createdAt:operations.createdAt}).from(operations).innerJoin(users,eq(operations.userId,users.id)).orderBy(desc(operations.createdAt)).limit(200);return <><h1>Activity log</h1><p className="muted">Latest 200 operations. Pending entries may represent uncertain writes; verify against the workbook. Clinical note contents are intentionally excluded.</p><div className="table-wrap"><table><thead><tr>{["Time (UTC)","Actor","Action","Module","Record","Fields","Outcome"].map(v=><th key={v}>{v}</th>)}</tr></thead><tbody>{rows.map(r=><tr key={r.id}><td>{r.createdAt.toISOString()}</td><td>{r.email}</td><td>{r.action}</td><td>{r.tab}</td><td>{r.record}</td><td>{r.fields}</td><td>{r.status}</td></tr>)}</tbody></table></div></>;}
