@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, text, timestamp, boolean, primaryKey, bigserial, date, integer, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, text, timestamp, boolean, primaryKey, bigserial, date, integer, numeric, type AnyPgColumn } from "drizzle-orm/pg-core";
 export const userStatus = pgEnum("user_status", ["pending", "approved", "rejected", "deactivated"]);
 export const userRole = pgEnum("user_role", ["super_admin", "admin", "seat_owner", "viewer"]);
 export const sheetTab = pgEnum("sheet_tab", ["hr", "business_development", "scheduling", "financial", "clinical", "founder_transition", "weekly_kpi_report", "compliance", "quarterly_goals", "scorecard", "targets", "help"]);
@@ -18,3 +18,19 @@ export const verificationTokens = pgTable("verification_tokens", { identifier: t
 
 export const rateLimits = pgTable("rate_limits", {key: text().primaryKey(), window: integer().notNull(), count: integer().notNull()});
 export const operations = pgTable("operations", {id: uuid().primaryKey().defaultRandom(), userId: uuid("user_id").notNull().references(()=>users.id), action: text().notNull(), tab: text().notNull(), record: text().notNull(), fields: text().notNull(), status: text().notNull().default("pending"), createdAt: timestamp("created_at",{withTimezone:true}).notNull().defaultNow(), completedAt: timestamp("completed_at",{withTimezone:true})});
+
+// Feature tables introduced by scripts/migrations/0022_management.sql.
+// Do not regenerate the old baseline migration against a populated Neon project.
+export const priorityActions=pgTable('kpi_priority_actions',{
+ id:uuid().primaryKey().defaultRandom(),title:text().notNull(),owner:text().notNull(),
+ dueDate:date('due_date'),status:text().notNull().default('open'),notes:text().notNull().default(''),
+ createdBy:uuid('created_by').notNull().references(()=>users.id),updatedBy:uuid('updated_by').notNull().references(()=>users.id),
+ version:integer().notNull().default(1),createdAt:timestamp('created_at',{withTimezone:true}).notNull().defaultNow(),updatedAt:timestamp('updated_at',{withTimezone:true}).notNull().defaultNow(),
+});
+export const targetRequests=pgTable('kpi_target_requests',{
+ id:uuid().primaryKey().defaultRandom(),cell:text().notNull(),metric:text().notNull(),
+ expectedFormatted:text('expected_formatted').notNull(),newValue:numeric('new_value').notNull(),
+ rationale:text().notNull(),status:text().notNull().default('pending'),
+ requestedBy:uuid('requested_by').notNull().references(()=>users.id),reviewedBy:uuid('reviewed_by').references(()=>users.id),
+ createdAt:timestamp('created_at',{withTimezone:true}).notNull().defaultNow(),reviewedAt:timestamp('reviewed_at',{withTimezone:true}),
+});
