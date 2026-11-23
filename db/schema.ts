@@ -44,3 +44,7 @@ export const notificationDeliveries=pgTable('kpi_notification_deliveries',{
  status:text().notNull().default('pending'),createdAt:timestamp('created_at',{withTimezone:true}).notNull().defaultNow(),
  sentAt:timestamp('sent_at',{withTimezone:true}),
 });
+
+export const writeReceipts=pgTable('kpi_write_receipts',{
+ operationId:uuid('operation_id').primaryKey().references(()=>operations.id),beforeHash:text('before_hash').notNull(),afterHash:text('after_hash').notNull(),verifiedAt:timestamp('verified_at',{withTimezone:true}).notNull().defaultNow(),
+});
