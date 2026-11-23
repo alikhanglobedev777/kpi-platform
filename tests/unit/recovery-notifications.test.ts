@@ -2,6 +2,7 @@ import {describe,it,expect} from 'vitest';
 import {newResetToken,hashResetToken,resetUrl,RESET_TTL_MS} from '@/lib/notifications/reset';
 import {authorizedCron} from '@/lib/notifications/cron-auth';
 import {dueReminders} from '@/lib/notifications/rules';
+import type {Department} from '@/lib/sheets/schema';
 describe('reset token and scheduled messages',()=>{
  it('creates random opaque reset tokens and only stores their hash',()=>{
   const a=newResetToken(),b=newResetToken();expect(a).not.toBe(b);expect(a.length).toBeGreaterThan(30);
@@ -19,7 +20,7 @@ describe('reset token and scheduled messages',()=>{
  });
  it('distinguishes zero-valued or reported department from missing department',()=>{
   const people=[{email:'HR@Example.com',tab:'hr' as const},{email:'finance@example.com',tab:'financial' as const}];
-  const d=dueReminders('2026-11-21',people,new Set(['financial'] as const));
+  const d=dueReminders('2026-11-21',people,new Set<Department>(['financial']));
   expect(d).toEqual([{key:'reminder:2026-11-21:hr:hr@example.com',recipient:'HR@Example.com',tab:'hr'}]);
  });
 });

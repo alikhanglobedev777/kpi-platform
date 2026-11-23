@@ -12,6 +12,7 @@ const schema=z.object({email:z.string().trim().toLowerCase().email().max(254)});
 export async function POST(r:Request){try{
  sameOrigin(r);const {email}=schema.parse(await json(r));await limit('forgot-global',100,15);await limit(`forgot:${email}`,4,60);
  if(!mailConfigured())throw new HttpError(503,'Email recovery is not configured. Contact your administrator.');
+ if(process.env.NODE_ENV==='production'&&!process.env.AUTH_URL?.startsWith('https://'))throw new HttpError(503,'Recovery link requires a configured HTTPS origin.');
  const db=getDb();const [user]=await db.select({id:users.id,status:users.status}).from(users).where(eq(users.email,email)).limit(1);
  if(user?.status==='approved'){
   const token=newResetToken(),hash=hashResetToken(token);

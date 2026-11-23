@@ -11,7 +11,7 @@ import {withWriteLock} from '@/lib/write-lock';
 import {limit} from '@/lib/auth/rate-limit';
 export const dynamic='force-dynamic';
 export async function GET(){try{await requireAdmin();const rows=await getDb().select().from(targetRequests).orderBy(desc(targetRequests.createdAt)).limit(200);return NextResponse.json({rows},{headers:{'Cache-Control':'no-store'}});}catch(e){return fail(e);}}
-export async function POST(r:Request){try{sameOrigin(r);const u=await requireAdmin();await limit(`target-request:${u.id}`,12,60);const b=targetInput.parse(await json(r));validateGoal(b.cell,b.newValue);const range=`'Executive Scorecard'!${b.cell}`;
+export async function POST(r:Request){try{sameOrigin(r);const u=await requireAdmin();await limit(`target-request:${u.id}`,12,60);const b=targetInput.parse(await json(r));try{validateGoal(b.cell,b.newValue);}catch{throw new HttpError(400,'Invalid target goal');}const range=`'Executive Scorecard'!${b.cell}`;
  const [[formatted],[raw],[name]]=await Promise.all([readRanges([range],'FORMATTED_VALUE'),readRanges([range],'FORMULA'),readRanges([`'Executive Scorecard'!A${b.cell.slice(1)}`],'FORMATTED_VALUE')]);
  if(String(raw[0]?.[0]??'').startsWith('='))throw new HttpError(409,'Goal cell contains a formula; cannot propose overwrite.');
  const metric=String(name[0]?.[0]??b.cell).slice(0,140);
@@ -28,7 +28,12 @@ export async function PATCH(r:Request){try{sameOrigin(r);const u=await requireAd
   await db.update(targetRequests).set({status:'needs_review',reviewedBy:u.id,reviewedAt:new Date()}).where(eq(targetRequests.id,b.id));throw new HttpError(409,'Goal changed since request. Create a new proposal.');
  }
  const [op]=await db.insert(operations).values({userId:u.id,action:'target_approval',tab:'scorecard',record:proposal.cell,fields:proposal.cell}).returning({id:operations.id});
- try{await writeRanges([{range,values:[[value]]}]);}catch{throw new HttpError(502,'Sheet write outcome uncertain. Reconcile in the audit log before retrying.');}
+ try{
+  await writeRanges([{range,values:[[value]]}]);
+  const [[verified]]=await readRanges([range],'FORMULA');
+  const stored=verified[0]?.[0];
+  if(typeof stored!=='number'||Math.abs(stored-value)>1e-8)throw new Error('Goal write could not be verified');
+ }catch{throw new HttpError(502,'Sheet write outcome uncertain. Reconcile in the audit log before retrying.');}
  await db.batch([db.update(targetRequests).set({status:'approved',reviewedBy:u.id,reviewedAt:new Date()}).where(eq(targetRequests.id,b.id)),db.update(operations).set({status:'completed',completedAt:new Date()}).where(eq(operations.id,op.id))]);
  return NextResponse.json({ok:true});
  });}catch(e){return fail(e);}}

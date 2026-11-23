@@ -9,7 +9,7 @@ const root=fileURLToPath(new URL('./migrations/',import.meta.url));
 const files=(await readdir(root)).filter(x=>/^\d{4}_.+\.sql$/.test(x)).sort();
 const apply=process.argv.includes('--apply');
 if(!process.env.DATABASE_URL){console.error('DATABASE_URL missing');process.exit(1);}
-if(process.env.APP_ENV==='production'&&!process.argv.includes('--confirm-production-migration')){
+if(apply&&process.env.APP_ENV==='production'&&!process.argv.includes('--confirm-production-migration')){
   console.error('Production migration requires --confirm-production-migration and a verified backup.');process.exit(1);
 }
 const sql=neon(process.env.DATABASE_URL);

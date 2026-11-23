@@ -1,6 +1,6 @@
 // Encrypted data-only backup: not a replacement for a full Drive workbook copy or Neon PITR.
 import {neon} from '@neondatabase/serverless';
-import {createSign,randomBytes,scryptSync,createCipheriv,createDecipheriv,createHash} from 'node:crypto';
+import {createSign,randomBytes,scryptSync,createCipheriv,createDecipheriv} from 'node:crypto';
 import {writeFile,readFile} from 'node:fs/promises';
 import {resolve,sep} from 'node:path';
 const pass=process.env.KPI_BACKUP_PASSPHRASE;
@@ -21,7 +21,7 @@ if(!process.env.DATABASE_URL||!process.env.GOOGLE_SHEET_ID||!process.env.GOOGLE_
 if(file.startsWith(resolve('.')+sep))throw new Error('Choose an encrypted backup location OUTSIDE the repository');
 const sql=neon(process.env.DATABASE_URL);
 // Only app tables; schema dumps, PostgreSQL extensions, grants and recovery settings are not included.
-const tables=['users','user_tabs','operations','sessions','rate_limits','kpi_priority_actions','kpi_target_requests','kpi_password_reset_tokens','kpi_notification_deliveries','kpi_write_leases','kpi_write_receipts','kpi_feature_migrations'];
+const tables=['users','user_tabs','operations','sessions','rate_limits','audit_log','accounts','verification_tokens','kpi_priority_actions','kpi_target_requests','kpi_password_reset_tokens','kpi_notification_deliveries','kpi_write_leases','kpi_write_receipts','kpi_feature_migrations'];
 const database={};for(const name of tables)database[name]=await sql.query(`SELECT * FROM ${name}`);
 const now=Math.floor(Date.now()/1000),b64=x=>Buffer.from(JSON.stringify(x)).toString('base64url');const header=b64({alg:'RS256',typ:'JWT'}),claim=b64({iss:process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,scope:'https://www.googleapis.com/auth/spreadsheets.readonly',aud:'https://oauth2.googleapis.com/token',iat:now,exp:now+3600});const payload=`${header}.${claim}`;
 const assertion=`${payload}.${createSign('RSA-SHA256').update(payload).sign(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/g,'\n'),'base64url')}`;
