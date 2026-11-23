@@ -16,3 +16,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - run: node scripts/check-repo-secrets.mjs
+      - run: node scripts/release-preflight.mjs
+      - run: node --test tests/scripts/*.test.mjs

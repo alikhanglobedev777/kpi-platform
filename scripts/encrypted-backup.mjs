@@ -2,7 +2,7 @@
 import {neon} from '@neondatabase/serverless';
 import {createSign,randomBytes,scryptSync,createCipheriv,createDecipheriv,createHash} from 'node:crypto';
 import {writeFile,readFile} from 'node:fs/promises';
-import {resolve} from 'node:path';
+import {resolve,sep} from 'node:path';
 const pass=process.env.KPI_BACKUP_PASSPHRASE;
 if(!pass||pass.length<20)throw new Error('KPI_BACKUP_PASSPHRASE must be 20+ chars; never store it in Git.');
 const mode=process.argv.includes('--verify')?'verify':process.argv.includes('--export')?'export':'help';
@@ -18,7 +18,7 @@ if(mode==='verify'){
 }
 if(process.env.APP_ENV==='production'&&!process.argv.includes('--confirm-production-backup'))throw new Error('Production backup requires --confirm-production-backup');
 if(!process.env.DATABASE_URL||!process.env.GOOGLE_SHEET_ID||!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL||!process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)throw new Error('Database and Google Sheets credentials required');
-if(file.startsWith(resolve('.')))throw new Error('Choose an encrypted backup location OUTSIDE the repository');
+if(file.startsWith(resolve('.')+sep))throw new Error('Choose an encrypted backup location OUTSIDE the repository');
 const sql=neon(process.env.DATABASE_URL);
 // Only app tables; schema dumps, PostgreSQL extensions, grants and recovery settings are not included.
 const tables=['users','user_tabs','operations','sessions','rate_limits','kpi_priority_actions','kpi_target_requests','kpi_password_reset_tokens','kpi_notification_deliveries','kpi_write_leases','kpi_write_receipts','kpi_feature_migrations'];

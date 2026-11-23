@@ -7,8 +7,8 @@ import {load} from '@/lib/sheets/records';
 import {previousSaturday} from '@/lib/sheets/values';
 import {historicalScorecard} from '@/lib/sheets/historical-scorecard';
 import {sendOnce} from './mailer';
+import {dueReminders} from './rules';
 const weekly=keys.filter(k=>departments[k].weekly);
-export function dueReminders(week:string,assigned:{email:string;tab:Department}[],reported:Set<Department>){return assigned.filter(a=>weekly.includes(a.tab)&&!reported.has(a.tab)).map(a=>({key:`reminder:${week}:${a.tab}:${a.email.toLowerCase()}`,recipient:a.email,tab:a.tab}));}
 export async function runScheduledNotices(){
  const week=previousSaturday();
  const db=getDb();
