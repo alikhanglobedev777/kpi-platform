@@ -26,7 +26,7 @@ export default async function WorkbookChecksPage(){
         {checks.map(c=><tr key={c.id}><td>{c.area}</td><td><strong>{c.title}</strong></td><td><span className={c.status==="pass"?"record-state":"record-state record-empty"}>{labels[c.status]}</span></td><td>{c.detail}</td></tr>)}
       </tbody></table></div>
     </section>
-    <p className="muted">For known clinical or target-cell problems, review the dry-run instructions in docs/UI_PATCH_VERIFICATION.md. Do not change protected cells without the workbook owner's authorization.</p>
+    <p className="muted">For known clinical or target-cell problems, review the dry-run instructions in docs/UI_PATCH_VERIFICATION.md. Do not change protected cells without the workbook owner&apos;s authorization.</p>
     <div className="toolbar"><Link href="/admin/reporting">Reporting coverage</Link><Link href="/admin/scorecard">Executive Scorecard</Link><Link href="/admin">Admin overview</Link></div>
   </div>;
 }
