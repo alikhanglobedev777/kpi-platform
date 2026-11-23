@@ -2,6 +2,7 @@
 import {useCallback,useEffect,useState,type FormEvent} from "react";
 import type {scorecard} from "@/lib/sheets/scorecard";
 import {api} from "./client";
+import Link from "next/link";
 import {PortalDialog} from "./dialog";
 type Data=Awaited<ReturnType<typeof scorecard>>;
 type Editor={cell:string;label:string;expected:string;value:string;goal:boolean;percent:boolean};
@@ -22,7 +23,7 @@ export function Scorecard({admin}:{admin:boolean}) {
   const count=(s:string)=>all.filter(({r})=>r[6]===s).length;
   const detailed=detail===null?null:all.find(({i})=>i===detail);
   const goalButton=(i:number,r:Data["metrics"][number])=>admin&&![17,18].includes(i+11)&&<button className="secondary" disabled={busy} onClick={()=>edit(`C${i+11}`,`Goal · ${r[0]}`,String(r[2]??""),true,[19,27,28,30].includes(i+11))}>Edit goal</button>;
-  return <div className="department-view scorecard-view"><div className="department-heading"><div><p className="eyebrow">Leadership</p><h1>Executive Scorecard</h1><p className="muted">{d?`Week ending ${d.week} · Live spreadsheet calculations`:"Live spreadsheet calculations"}</p></div><button className="secondary" disabled={busy||loading} onClick={()=>void load()}>{loading?"Loading…":"Reload current week"}</button></div>
+  return <div className="department-view scorecard-view"><p><Link href={admin?"/admin/scorecard/history":"/dashboard/scorecard/history"}>View historical scorecard →</Link></p><div className="department-heading"><div><p className="eyebrow">Leadership</p><h1>Executive Scorecard</h1><p className="muted">{d?`Week ending ${d.week} · Live spreadsheet calculations`:"Live spreadsheet calculations"}</p></div><button className="secondary" disabled={busy||loading} onClick={()=>void load()}>{loading?"Loading…":"Reload current week"}</button></div>
     {error&&!editor&&<p role="alert" className="error">{error}</p>}
     {loading&&!d&&<p role="status">Loading scorecard…</p>}
     {d&&<><div className="department-cards scorecard-cards"><article className="department-metric"><span>Overall status · workbook</span><strong className={`status-${d.pulse}`}>{asText(d.pulse)}</strong></article>{statuses.slice(0,5).map(s=><article key={s} className="department-metric"><span>{s}</span><strong className={`status-${s}`}>{count(s)}</strong><small>of {all.length} KPI rows</small></article>)}</div>
