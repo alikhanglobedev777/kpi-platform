@@ -26,13 +26,13 @@ if(tracked.includes("init")){
 }
 const pkg=JSON.parse(readFileSync("package.json","utf8"));
 for(const name of ["dev","build","start"]){
-  if(/\\bnode\\s+init\\b/.test(pkg.scripts?.[name]??"")){
+  if(/\bnode\s+init\b/.test(pkg.scripts?.[name]??"")){
     console.error(`FAIL: ${name} executes an untrusted init script.`);
     process.exitCode=1;
   }
 }
 const postcss=readFileSync("postcss.config.mjs","utf8");
-if(postcss.length>4096||/createRequire|fromCharCode|\\beval\\s*\\(|\\bFunction\\s*\\(/.test(postcss)){
+if(postcss.length>4096||/createRequire|fromCharCode|\beval\s*\(|\bFunction\s*\(/.test(postcss)){
   console.error("FAIL: PostCSS configuration contains unexpected executable content.");
   process.exitCode=1;
 }
