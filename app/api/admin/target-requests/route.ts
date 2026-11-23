@@ -30,7 +30,7 @@ export async function PATCH(r:Request){try{sameOrigin(r);const u=await requireAd
  const [op]=await db.insert(operations).values({userId:u.id,action:'target_approval',tab:'scorecard',record:proposal.cell,fields:proposal.cell}).returning({id:operations.id});
  try{
   await writeRanges([{range,values:[[value]]}]);
-  const [[verified]]=await readRanges([range],'FORMULA');
+  const [verified]=await readRanges([range],'FORMULA');
   const stored=verified[0]?.[0];
   if(typeof stored!=='number'||Math.abs(stored-value)>1e-8)throw new Error('Goal write could not be verified');
  }catch{throw new HttpError(502,'Sheet write outcome uncertain. Reconcile in the audit log before retrying.');}
