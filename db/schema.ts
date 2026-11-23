@@ -34,3 +34,13 @@ export const targetRequests=pgTable('kpi_target_requests',{
  requestedBy:uuid('requested_by').notNull().references(()=>users.id),reviewedBy:uuid('reviewed_by').references(()=>users.id),
  createdAt:timestamp('created_at',{withTimezone:true}).notNull().defaultNow(),reviewedAt:timestamp('reviewed_at',{withTimezone:true}),
 });
+
+export const passwordResetTokens=pgTable('kpi_password_reset_tokens',{
+ tokenHash:text('token_hash').primaryKey(),userId:uuid('user_id').notNull().references(()=>users.id,{onDelete:'cascade'}),
+ expiresAt:timestamp('expires_at',{withTimezone:true}).notNull(),createdAt:timestamp('created_at',{withTimezone:true}).notNull().defaultNow(),
+});
+export const notificationDeliveries=pgTable('kpi_notification_deliveries',{
+ messageKey:text('message_key').primaryKey(),recipient:text().notNull(),category:text().notNull(),
+ status:text().notNull().default('pending'),createdAt:timestamp('created_at',{withTimezone:true}).notNull().defaultNow(),
+ sentAt:timestamp('sent_at',{withTimezone:true}),
+});
