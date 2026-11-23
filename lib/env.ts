@@ -11,4 +11,4 @@ const schema = z.object({
  DATABASE_URL: optional, AUTH_URL: optional, INITIAL_ADMIN_EMAILS: optional,
 }).superRefine((e,ctx)=>{if(e.GOOGLE_SHEET_ID===PRODUCTION_SHEET_ID && !(e.APP_ENV==="production" && e.ALLOW_PRODUCTION_SHEET==="true"))ctx.addIssue({code:"custom",path:["GOOGLE_SHEET_ID"],message:"Production workbook requires explicit production authorization."});});
 export function parseEnv(source: Record<string,string|undefined>){return schema.parse(source);}
-export function requireSheetsEnv(source=process.env){return z.object({GOOGLE_SHEET_ID:z.string().min(1),GOOGLE_SERVICE_ACCOUNT_EMAIL:z.string().email(),GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY:z.string().min(1)}).parse(parseEnv(source));}
+export function requireSheetsEnv(source: Record<string,string|undefined> = process.env){return z.object({GOOGLE_SHEET_ID:z.string().min(1),GOOGLE_SERVICE_ACCOUNT_EMAIL:z.string().email(),GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY:z.string().min(1)}).parse(parseEnv(source));}
