@@ -7,6 +7,8 @@ import {fail,HttpError,json,sameOrigin} from '@/lib/http';
 import {limit} from '@/lib/auth/rate-limit';
 import {mailConfigured,sendMail} from '@/lib/notifications/mailer';
 import {hashResetToken,newResetToken,RESET_TTL_MS,resetUrl} from '@/lib/notifications/reset';
+export const runtime='nodejs';
+export const maxDuration=30;
 export const dynamic='force-dynamic';
 const schema=z.object({email:z.string().trim().toLowerCase().email().max(254)});
 export async function POST(r:Request){try{
