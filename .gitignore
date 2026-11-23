@@ -1,7 +1,6 @@
 node_modules/
 .pnpm-store/
 .next/
-!.env.example
 coverage/
 playwright-report/
 test-results/
@@ -10,3 +9,12 @@ next-env.d.ts
 service-account*.json
 credentials*.json
 config.bat
+
+*service-account*.json
+*credentials*.json
+dawson-kpi-platform*.json
+*.pem
+*.p8
+*.key
+.env*
+!.env.example
