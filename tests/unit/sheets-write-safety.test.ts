@@ -19,3 +19,27 @@ describe("formula-safe write planning",()=>{
   it("rejects unexpected formulas even in input columns",()=>{const row=fixture("clinical");row.entered[5]="=SUM(A1:A2)";expect(()=>plan("clinical",row,{F:"0"})).toThrow(/Unexpected formula/);});
   it("does not replace blanks with numeric zeros or alter fields omitted in a partial update",()=>{const row=fixture("scheduling");row.entered[1]=4;expect(plan("scheduling",row,{B:""}).updates).toEqual([{range:"'Scheduling Dashboard'!B14",values:[[""]]}]);expect(plan("scheduling",row,{}).updates).toEqual([]);});
 });
+
+describe("boundary and injection checks",()=>{
+  it("never writes the weekly reporting date or computed percentages on clear",()=>{
+    for(const tab of ["hr","business_development","financial"] as const){
+      const row=fixture(tab);
+      row.entered[1]=100;
+      const result=plan(tab,row,{},true);
+      expect(result.updates.every(u=>!/[!]A\d+$/.test(u.range))).toBe(true);
+      const formula=tab==="hr"?"E":tab==="business_development"?"F":"E";
+      expect(result.updates.every(u=>!new RegExp(`!${formula}\\d+$`).test(u.range))).toBe(true);
+    }
+  });
+  it("treats zero distinctly from blank and escapes formula-looking text",()=>{
+    const row=fixture("hr");
+    expect(plan("hr",row,{F:0}).updates[0].values).toEqual([[0]]);
+    expect(plan("hr",row,{F:""}).updates.length).toBe(0);
+    expect(plan("hr",row,{K:"=IMPORTDATA(\"https://example.org\")"}).updates[0].values[0][0]).toMatch(/^'/);
+  });
+  it("rejects invalid percentages and negative caregiver counts",()=>{
+    const row=fixture("hr");
+    for(const value of ["101","-1","NaN"]){expect(()=>plan("hr",row,{H:value})).toThrow();}
+    expect(()=>plan("hr",row,{B:-1})).toThrow();
+  });
+});
